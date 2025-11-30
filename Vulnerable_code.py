@@ -40,19 +40,33 @@ def init_db():
 # -------------------------------------------------
 # 
 # -------------------------------------------------
+# @app.route("/login")
+# def login():
+#     username = request.args.get("user", "")
+#     password = request.args.get("pass", "")
+
+#     password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+#     cur = get_db().cursor()
+#     cur.execute("SELECT * FROM users WHERE username=? AND password_hash=?", (username, password_hash))
+#     row = cur.fetchone()
+
+#     return f"Login: {row is not None}"
+
+
+# -----------------------------
+# 1. SQL Injection
+# -----------------------------
 @app.route("/login")
 def login():
-    username = request.args.get("user", "")
-    password = request.args.get("pass", "")
+    u = request.args.get("user", "")
+    p = request.args.get("pass", "")
 
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-
+    query = f"SELECT * FROM users WHERE username='{u}' AND password='{p}'"
     cur = get_db().cursor()
-    cur.execute("SELECT * FROM users WHERE username=? AND password_hash=?", (username, password_hash))
+    cur.execute(query)
     row = cur.fetchone()
-
-    return f"Login: {row is not None}"
-
+    return f"Login result: {row}"
 
 if __name__ == "__main__":
     init_db()
