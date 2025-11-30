@@ -64,6 +64,47 @@ def login():
     row = cur.fetchone()
     return f"Login result: {row}"
 
+# -----------------------------
+# 2. Reflected XSS
+# -----------------------------
+@app.route("/search")
+def search():
+    q = request.args.get("q", "")
+    return render_template_string(f"<h2>You searched: {q}</h2>")
+
+
+# -----------------------------
+# 3. Insecure File Upload
+# -----------------------------
+@app.route("/upload", methods=["POST"])
+def upload():
+    f = request.files.get("file")
+    if not f:
+        return "No file uploaded"
+
+    f.save(f"uploads/{f.filename}")
+    return f"Uploaded: {f.filename}"
+
+
+# -----------------------------
+# 4. Fake Command Injection
+# -----------------------------
+@app.route("/ping")
+def ping():
+    host = request.args.get("host", "")
+    return f"Simulated execution: ping {host}"
+
+
+# -----------------------------
+# 5. Insecure Deserialization
+# -----------------------------
+@app.route("/decode")
+def decode():
+    payload = request.args.get("data", "")
+    decoded = base64.b64decode(payload).decode()
+    obj = json.loads(decoded)
+    return f"Decoded: {obj}"
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
